@@ -1,50 +1,126 @@
 import { unstable_noStore as noStore } from "next/cache";
 import Link from "next/link";
 
-import { CreatePost } from "~/app/_components/create-post";
-import { api } from "~/trpc/server";
+import { CreatePost } from "@/app/_components/create-post";
+import { api } from "@/trpc/server";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "./components/ui/table";
 
 export default async function Home() {
   noStore();
   const hello = await api.post.hello.query({ text: "from tRPC" });
-
+  const getLatest = await api.post.getLatest.query();
+  const getCompanies = await api.company.getCompanies.query();
+  const getDebt = await api.debt.getDebt.query();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-        <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-        </h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-            href="https://create.t3.gg/en/usage/first-steps"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">First Steps →</h3>
-            <div className="text-lg">
-              Just the basics - Everything you need to know to set up your
-              database and authentication.
-            </div>
-          </Link>
-          <Link
-            className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-            href="https://create.t3.gg/en/introduction"
-            target="_blank"
-          >
-            <h3 className="text-2xl font-bold">Documentation →</h3>
-            <div className="text-lg">
-              Learn more about Create T3 App, the libraries it uses, and how to
-              deploy it.
-            </div>
-          </Link>
+    <main className="flex min-h-screen w-full flex-col items-center gap-10 bg-gradient-to-b from-[#2e026d] to-[#15162c] px-20 text-white">
+      <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
+        Debt <span className="text-[hsl(280,100%,70%)]">Tracker</span> App
+      </h1>
+      <p>{hello.greeting}</p>
+      <CrudShowcase />
+      <div className="mx-auto flex h-[600px] w-full flex-row gap-4 text-center">
+        <div className="basis-1/4 border px-4">
+          <h3 className="mt-4 text-lg font-semibold text-[hsl(280,100%,70%)]">
+            Posts
+          </h3>
+          <Table>
+            <TableCaption>Recent Posts.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Id</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead className="text-right">Updated At</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">{getLatest?.id}</TableCell>
+                <TableCell>{getLatest?.name}</TableCell>
+                <TableCell>{getLatest?.createdAt.toDateString()}</TableCell>
+                <TableCell className="text-right">
+                  {getLatest?.updatedAt?.toDateString() ?? "Null"}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-2xl text-white">
-            {hello ? hello.greeting : "Loading tRPC query..."}
-          </p>
+        <div className="basis-1/4 border px-4">
+          <h3 className="mt-4 text-lg font-semibold text-[hsl(280,100%,70%)]">
+            Companies
+          </h3>
+          <Table>
+            <TableCaption>Company List.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Id</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Web Address</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead className="text-right">Updated At</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">
+                  {getCompanies?.id}
+                </TableCell>
+                <TableCell>{getCompanies?.name}</TableCell>
+                <TableCell>{getCompanies?.phone}</TableCell>
+                <TableCell>{getCompanies?.webAddress}</TableCell>
+                <TableCell>{getCompanies?.createdAt.toDateString()}</TableCell>
+                <TableCell className="text-right">
+                  {getCompanies?.updatedAt?.toDateString() ?? "Null"}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
-
-        <CrudShowcase />
+        <div className="basis-1/4 border px-4">
+          <h3 className="mt-4 text-lg font-semibold text-[hsl(280,100%,70%)]">
+            Debt
+          </h3>
+          <Table>
+            <TableCaption>Debt List</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Id</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Debt type</TableHead>
+                <TableHead>Company Id</TableHead>
+                <TableHead>Monthly</TableHead>
+                <TableHead className="text-right">Amount Owed</TableHead>
+                <TableHead className="text-right">Amount Due</TableHead>
+                <TableHead className="text-right">Due date</TableHead>
+                <TableHead className="text-right">Note</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead className="text-right">Updated At</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">{getDebt?.id}</TableCell>
+                <TableCell>{getDebt?.name}</TableCell>
+                <TableCell>{getDebt?.debtType}</TableCell>
+                <TableCell>{getDebt?.companyId}</TableCell>
+                <TableCell>{getDebt?.isMonthly}</TableCell>
+                <TableCell>{getDebt?.amountOwed}</TableCell>
+                <TableCell>{getDebt?.amountDue}</TableCell>
+                <TableCell>{getDebt?.dueDate}</TableCell>
+                <TableCell>{getDebt?.createdAt.toDateString()}</TableCell>
+                <TableCell className="text-right">
+                  {getDebt?.updatedAt?.toDateString() ?? "Null"}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+        <div className="basis-1/4 border px-4">
+          <h3 className="mt-4 text-lg font-semibold text-[hsl(280,100%,70%)]">
+            Fourth Col
+          </h3>
+        </div>
       </div>
     </main>
   );
